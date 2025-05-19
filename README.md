@@ -32,25 +32,30 @@ A Chrome Extension that automatically scrapes LinkedIn Sales Navigator search re
 
 ### Chrome Extension Setup
 
-1. Download or clone this repository to your local machine
+#### Using the dist folder (recommended):
+
+1. Download the `dist` folder from this repository
 2. Open Chrome and navigate to `chrome://extensions/`
 3. Enable "Developer mode" (toggle in the top-right corner)
 4. Click "Load unpacked"
-5. Select the folder containing the extension files
+5. Select the `dist` folder containing the extension files
 6. The extension is now installed and ready to use!
 
-### Packaging for Distribution
+#### Manual installation:
 
-If you want to share the extension with others:
+If you prefer to set up the extension manually:
 
-1. Make sure your extension is working properly
-2. Create a ZIP file containing all extension files:
-   ```
-   zip -r linkedin-scraper.zip manifest.json popup.html popup.css popup.js content.js background.js lib/
-   ```
-3. The ZIP file can be shared with others who can then install it by:
-   - Unzipping the file
-   - Following steps 2-5 above
+1. Create a new folder for the extension (e.g., `linkedin-scraper`)
+2. Copy the following files to the folder:
+   - `manifest.json`
+   - `popup.html`
+   - `popup.css`
+   - `popup.js`
+   - `content.js`
+   - `background.js`
+3. Create a `lib` subfolder and add the following:
+   - `papaparse.min.js`
+4. Follow steps 2-5 above to install the extension
 
 ### Backend Setup (Optional)
 
