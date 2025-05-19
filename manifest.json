@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "LinkedIn Sales Navigator Scraper",
+  "version": "1.0.0",
+  "description": "Extract data from LinkedIn Sales Navigator search results",
+  "permissions": ["storage", "activeTab", "downloads"],
+  "host_permissions": [
+    "https://www.linkedin.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDA3N0I1IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1saW5rZWRpbiI+PHBhdGggZD0iTTE2IDhMMTYgMTMgTTE4IDExIEwyMiA4TDIyIDEzIChNMjAgMTEpIE0yIDlIMTIgTTIgMTNIMTIgTTIgMTdIMTIiLz48cGF0aCBkPSJNMTYgOGEyIDIgMCAwIDEgMiAySE0xNiA4YTIgMiAwIDAgMC0yIDJNMTggMThhMiAyIDAgMCAxLTIgMk0xOCAxOGEyIDIgMCAwIDAgMiAyTTQgOGEyIDIgMCAwIDEgMi0yaDEyYTIgMiAwIDAgMSAyIDJ2OGEyIDIgMCAwIDEtMiAySDZhMiAyIDAgMCAxLTItMlY4eiI+PC9wYXRoPjwvc3ZnPg=="
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.linkedin.com/sales/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["lib/papaparse.min.js"],
+      "matches": ["https://www.linkedin.com/*"]
+    }
+  ],
+  "icons": {
+    "16": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDA3N0I1IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1saW5rZWRpbiI+PHBhdGggZD0iTTE2IDhMMTYgMTMgTTE4IDExIEwyMiA4TDIyIDEzIChNMjAgMTEpIE0yIDlIMTIgTTIgMTNIMTIgTTIgMTdIMTIiLz48cGF0aCBkPSJNMTYgOGEyIDIgMCAwIDEgMiAySE0xNiA4YTIgMiAwIDAgMC0yIDJNMTggMThhMiAyIDAgMCAxLTIgMk0xOCAxOGEyIDIgMCAwIDAgMiAyTTQgOGEyIDIgMCAwIDEgMi0yaDEyYTIgMiAwIDAgMSAyIDJ2OGEyIDIgMCAwIDEtMiAySDZhMiAyIDAgMCAxLTItMlY4eiI+PC9wYXRoPjwvc3ZnPg=="
+  }
+}

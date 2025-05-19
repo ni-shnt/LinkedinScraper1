@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkedIn Sales Navigator Scraper</title>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body class="bg-white">
+  <div class="flex flex-col h-full">
+    <!-- Header -->
+    <header class="bg-linkedin-blue text-white px-4 py-3 flex justify-between items-center shadow-md">
+      <div class="flex items-center">
+        <i class="ri-linkedin-fill text-xl mr-2"></i>
+        <h1 class="text-lg font-semibold">Sales Navigator Scraper</h1>
+      </div>
+      <div class="flex items-center">
+        <button id="settings-btn" class="text-white p-1 hover:bg-white/10 rounded">
+          <i class="ri-settings-3-line"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main content -->
+    <div class="flex-1 overflow-auto">
+      <!-- Status Panel -->
+      <div class="p-4 border-b border-neutral-light">
+        <div class="flex justify-between items-center mb-3">
+          <span class="font-medium">Extension Status</span>
+          <span id="status-badge" class="px-2 py-0.5 text-xs rounded-full bg-success text-white">Ready</span>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-xs text-neutral-medium mb-1">Current Page</p>
+            <p id="current-page" class="text-sm font-medium truncate">Sales Navigator</p>
+          </div>
+          <div>
+            <p class="text-xs text-neutral-medium mb-1">Profiles Found</p>
+            <p id="profiles-found" class="text-sm font-medium">0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Control Panel -->
+      <div class="p-4 border-b border-neutral-light">
+        <h2 class="font-medium mb-3">Scraping Options</h2>
+        
+        <!-- Start/Stop Button -->
+        <div class="mb-4">
+          <button id="scrape-btn" class="w-full py-2 bg-linkedin-blue hover:bg-opacity-90 text-white rounded font-medium flex items-center justify-center">
+            <i class="ri-play-fill mr-1"></i>
+            <span>Start Scraping</span>
+          </button>
+        </div>
+        
+        <!-- Options -->
+        <div class="space-y-3">
+          <!-- Email Toggle -->
+          <div class="flex items-center justify-between">
+            <label for="email-toggle" class="text-sm font-medium flex items-center">
+              <i class="ri-mail-line mr-1.5 text-neutral-medium"></i>
+              Include Email Addresses
+            </label>
+            <div class="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
+              <input type="checkbox" name="email-toggle" id="email-toggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-neutral-light appearance-none cursor-pointer"/>
+              <label for="email-toggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-neutral-light cursor-pointer"></label>
+            </div>
+          </div>
+          
+          <!-- Depth Level -->
+          <div class="flex items-center justify-between">
+            <label for="depth-select" class="text-sm font-medium flex items-center">
+              <i class="ri-layers-line mr-1.5 text-neutral-medium"></i>
+              Scraping Depth
+            </label>
+            <select id="depth-select" class="bg-neutral-lightest border border-neutral-light rounded px-2 py-1 text-sm">
+              <option value="1">Basic (Faster)</option>
+              <option value="2" selected>Standard</option>
+              <option value="3">Deep (Slower)</option>
+            </select>
+          </div>
+          
+          <!-- Auto Scroll -->
+          <div class="flex items-center justify-between">
+            <label for="scroll-toggle" class="text-sm font-medium flex items-center">
+              <i class="ri-arrow-down-line mr-1.5 text-neutral-medium"></i>
+              Auto-Scroll Page
+            </label>
+            <div class="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
+              <input type="checkbox" name="scroll-toggle" id="scroll-toggle" checked class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-neutral-light appearance-none cursor-pointer"/>
+              <label for="scroll-toggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-neutral-light cursor-pointer"></label>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Results Panel -->
+      <div class="p-4 border-b border-neutral-light">
+        <div class="flex justify-between items-center mb-3">
+          <h2 class="font-medium">Scraping Results</h2>
+          <div class="flex space-x-2">
+            <button id="clear-btn" class="text-xs bg-neutral-lightest hover:bg-neutral-light px-2 py-1 rounded border border-neutral-light">
+              <i class="ri-delete-bin-line text-xs mr-1"></i>Clear
+            </button>
+            <button id="export-btn" class="text-xs bg-linkedin-blue hover:bg-opacity-90 text-white px-2 py-1 rounded">
+              <i class="ri-download-line text-xs mr-1"></i>Export
+            </button>
+          </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="w-full bg-neutral-lightest rounded-full h-2 mb-3">
+          <div id="progress-bar" class="bg-linkedin-blue h-2 rounded-full" style="width: 0%"></div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="grid grid-cols-3 gap-2 mb-4 text-center">
+          <div class="bg-neutral-lightest rounded p-2">
+            <p class="text-xs text-neutral-medium mb-0.5">Profiles</p>
+            <p id="profile-count" class="font-medium">0</p>
+          </div>
+          <div class="bg-neutral-lightest rounded p-2">
+            <p class="text-xs text-neutral-medium mb-0.5">Companies</p>
+            <p id="company-count" class="font-medium">0</p>
+          </div>
+          <div class="bg-neutral-lightest rounded p-2">
+            <p class="text-xs text-neutral-medium mb-0.5">Emails</p>
+            <p id="email-count" class="font-medium">0</p>
+          </div>
+        </div>
+        
+        <!-- Filter Box -->
+        <div class="mb-3">
+          <div class="relative">
+            <input id="filter-input" type="text" placeholder="Filter results..." class="w-full px-3 py-2 pr-8 border border-neutral-light rounded text-sm">
+            <i class="ri-search-line absolute right-3 top-2.5 text-neutral-medium"></i>
+          </div>
+        </div>
+        
+        <!-- Results List -->
+        <div id="results-container" class="space-y-2 max-h-[180px] overflow-y-auto pr-1">
+          <!-- Results will be dynamically inserted here -->
+        </div>
+      </div>
+      
+      <!-- Export Panel -->
+      <div id="export-panel" class="p-4 hidden">
+        <h2 class="font-medium mb-3">Export Options</h2>
+        
+        <div class="space-y-3 mb-4">
+          <div>
+            <label for="filename" class="block text-sm mb-1">File Name</label>
+            <input type="text" id="filename" class="w-full px-3 py-2 border border-neutral-light rounded text-sm" value="linkedin_leads_export">
+          </div>
+          
+          <div>
+            <p class="block text-sm mb-1">Export Format</p>
+            <div class="flex space-x-2">
+              <label class="inline-flex items-center">
+                <input type="radio" name="format" value="csv" checked class="text-linkedin-blue">
+                <span class="ml-1 text-sm">CSV</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input type="radio" name="format" value="json" class="text-linkedin-blue">
+                <span class="ml-1 text-sm">JSON</span>
+              </label>
+            </div>
+          </div>
+          
+          <div>
+            <p class="block text-sm mb-1">Include Fields</p>
+            <div class="grid grid-cols-2 gap-x-2 gap-y-1">
+              <label class="inline-flex items-center">
+                <input type="checkbox" checked class="text-linkedin-blue" data-field="name">
+                <span class="ml-1 text-sm">Full Name</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input type="checkbox" checked class="text-linkedin-blue" data-field="title">
+                <span class="ml-1 text-sm">Job Title</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input type="checkbox" checked class="text-linkedin-blue" data-field="company">
+                <span class="ml-1 text-sm">Company</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input type="checkbox" checked class="text-linkedin-blue" data-field="email">
+                <span class="ml-1 text-sm">Email</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input type="checkbox" checked class="text-linkedin-blue" data-field="profile_url">
+                <span class="ml-1 text-sm">Profile URL</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input type="checkbox" checked class="text-linkedin-blue" data-field="company_url">
+                <span class="ml-1 text-sm">Company URL</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex space-x-2">
+          <button id="cancel-export-btn" class="flex-1 py-2 bg-neutral-light hover:bg-neutral-medium text-neutral-dark rounded font-medium">
+            Cancel
+          </button>
+          <button id="download-btn" class="flex-1 py-2 bg-linkedin-blue hover:bg-opacity-90 text-white rounded font-medium">
+            Download
+          </button>
+        </div>
+      </div>
+      
+      <!-- Settings Panel -->
+      <div id="settings-panel" class="p-4 hidden">
+        <h2 class="font-medium mb-3">Extension Settings</h2>
+        
+        <div class="space-y-3 mb-4">
+          <div class="flex items-center justify-between">
+            <label for="notification-toggle" class="text-sm font-medium">
+              Desktop Notifications
+            </label>
+            <div class="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
+              <input type="checkbox" name="notification-toggle" id="notification-toggle" checked class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-neutral-light appearance-none cursor-pointer"/>
+              <label for="notification-toggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-neutral-light cursor-pointer"></label>
+            </div>
+          </div>
+          
+          <div>
+            <label for="delay-range" class="block text-sm mb-1">Scraping Delay (ms)</label>
+            <input type="range" id="delay-range" min="100" max="2000" value="500" class="w-full">
+            <div class="flex justify-between text-xs text-neutral-medium">
+              <span>Fast</span>
+              <span id="delay-value">500ms</span>
+              <span>Slow</span>
+            </div>
+          </div>
+          
+          <div>
+            <label for="batch-size" class="block text-sm mb-1">Batch Size</label>
+            <select id="batch-size" class="w-full px-3 py-2 border border-neutral-light rounded text-sm">
+              <option value="10">10 profiles per batch</option>
+              <option value="25" selected>25 profiles per batch</option>
+              <option value="50">50 profiles per batch</option>
+              <option value="100">100 profiles per batch</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="flex space-x-2">
+          <button id="reset-settings-btn" class="flex-1 py-2 bg-neutral-light hover:bg-neutral-medium text-neutral-dark rounded font-medium">
+            Reset Defaults
+          </button>
+          <button id="save-settings-btn" class="flex-1 py-2 bg-linkedin-blue hover:bg-opacity-90 text-white rounded font-medium">
+            Save Settings
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-neutral-light p-3 flex justify-between items-center">
+      <div class="text-xs text-neutral-medium">
+        <span id="status-message">Ready to scrape</span>
+      </div>
+      <div class="flex space-x-3">
+        <button id="help-btn" class="text-neutral-medium hover:text-linkedin-blue" title="Help">
+          <i class="ri-question-line"></i>
+        </button>
+        <button id="docs-btn" class="text-neutral-medium hover:text-linkedin-blue" title="View Documentation">
+          <i class="ri-file-list-line"></i>
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <script src="lib/papaparse.min.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
