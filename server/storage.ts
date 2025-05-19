@@ -52,12 +52,12 @@ export interface IStorage {
 export class DbStorage implements IStorage {
   // User operations
   async getUser(id: number): Promise<User | undefined> {
-    const result = await db.select().from(users).where(({ id: userId }) => userId.equals(id)).limit(1);
+    const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
     return result[0];
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const result = await db.select().from(users).where(({ username: userName }) => userName.equals(username)).limit(1);
+    const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
     return result[0];
   }
 
@@ -68,12 +68,12 @@ export class DbStorage implements IStorage {
   
   // LinkedIn Profile operations
   async getProfile(id: number): Promise<LinkedinProfile | undefined> {
-    const result = await db.select().from(linkedinProfiles).where(({ id: profileId }) => profileId.equals(id)).limit(1);
+    const result = await db.select().from(linkedinProfiles).where(eq(linkedinProfiles.id, id)).limit(1);
     return result[0];
   }
   
   async getProfileByUrl(profileUrl: string): Promise<LinkedinProfile | undefined> {
-    const result = await db.select().from(linkedinProfiles).where(({ profileUrl: url }) => url.equals(profileUrl)).limit(1);
+    const result = await db.select().from(linkedinProfiles).where(eq(linkedinProfiles.profileUrl, profileUrl)).limit(1);
     return result[0];
   }
   
@@ -83,12 +83,12 @@ export class DbStorage implements IStorage {
   }
   
   async updateProfile(id: number, profile: Partial<InsertLinkedinProfile>): Promise<LinkedinProfile | undefined> {
-    const result = await db.update(linkedinProfiles).set(profile).where(({ id: profileId }) => profileId.equals(id)).returning();
+    const result = await db.update(linkedinProfiles).set(profile).where(eq(linkedinProfiles.id, id)).returning();
     return result[0];
   }
   
   async deleteProfile(id: number): Promise<boolean> {
-    const result = await db.delete(linkedinProfiles).where(({ id: profileId }) => profileId.equals(id)).returning();
+    const result = await db.delete(linkedinProfiles).where(eq(linkedinProfiles.id, id)).returning();
     return result.length > 0;
   }
   
@@ -99,17 +99,18 @@ export class DbStorage implements IStorage {
   async searchProfiles(query: string): Promise<LinkedinProfile[]> {
     // Simple search implementation that looks for the query in name, title, company, or email
     return await db.select().from(linkedinProfiles).where(
-      ({ name, title, company, email }) => 
-        name.like(`%${query}%`)
-        .or(title.like(`%${query}%`))
-        .or(company.like(`%${query}%`))
-        .or(email.like(`%${query}%`))
+      or(
+        like(linkedinProfiles.name, `%${query}%`),
+        like(linkedinProfiles.title, `%${query}%`),
+        like(linkedinProfiles.company, `%${query}%`),
+        like(linkedinProfiles.email, `%${query}%`)
+      )
     );
   }
   
   // Search operations
   async getSearch(id: number): Promise<Search | undefined> {
-    const result = await db.select().from(searches).where(({ id: searchId }) => searchId.equals(id)).limit(1);
+    const result = await db.select().from(searches).where(eq(searches.id, id)).limit(1);
     return result[0];
   }
   
@@ -120,7 +121,7 @@ export class DbStorage implements IStorage {
   
   async getAllSearches(userId?: number): Promise<Search[]> {
     if (userId) {
-      return await db.select().from(searches).where(({ userId: uId }) => uId.equals(userId));
+      return await db.select().from(searches).where(eq(searches.userId, userId));
     }
     return await db.select().from(searches);
   }
@@ -132,15 +133,13 @@ export class DbStorage implements IStorage {
   }
   
   async getProfilesBySearch(searchId: number): Promise<LinkedinProfile[]> {
-    const result = await db
-      .select({
-        profile: linkedinProfiles
-      })
+    const results = await db
+      .select()
       .from(searchResults)
-      .innerJoin(linkedinProfiles, ({ profile_id, id }) => profile_id.equals(id))
-      .where(({ search_id }) => search_id.equals(searchId));
+      .where(eq(searchResults.searchId, searchId))
+      .leftJoin(linkedinProfiles, eq(searchResults.profileId, linkedinProfiles.id));
     
-    return result.map(r => r.profile);
+    return results.map(r => r.linkedin_profiles);
   }
 }
 

@@ -244,6 +244,26 @@
               <option value="100">100 profiles per batch</option>
             </select>
           </div>
+          
+          <div class="border-t border-neutral-light pt-3 mt-3">
+            <h3 class="font-medium mb-2">Database Integration</h3>
+            
+            <div class="flex items-center justify-between mb-3">
+              <label for="backend-toggle" class="text-sm font-medium">
+                Sync with Database
+              </label>
+              <div class="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
+                <input type="checkbox" name="backend-toggle" id="backend-toggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-neutral-light appearance-none cursor-pointer"/>
+                <label for="backend-toggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-neutral-light cursor-pointer"></label>
+              </div>
+            </div>
+            
+            <div>
+              <label for="backend-url" class="block text-sm mb-1">Backend URL</label>
+              <input type="text" id="backend-url" class="w-full px-3 py-2 border border-neutral-light rounded text-sm" value="http://localhost:5000">
+              <p class="text-xs text-neutral-medium mt-1">URL of your database server</p>
+            </div>
+          </div>
         </div>
         
         <div class="flex space-x-2">

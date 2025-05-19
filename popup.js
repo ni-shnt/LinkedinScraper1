@@ -8,6 +8,8 @@ const state = {
   scrapeDelay: 500,
   batchSize: 25,
   notifications: true,
+  syncWithBackend: false,
+  backendUrl: 'http://localhost:5000', // Default backend URL
   currentFilter: '',
   currentTab: null,
   currentPanel: 'main', // 'main', 'export', 'settings'
@@ -32,6 +34,8 @@ const elements = {
   delayValue: document.getElementById('delay-value'),
   batchSize: document.getElementById('batch-size'),
   notificationToggle: document.getElementById('notification-toggle'),
+  backendToggle: document.getElementById('backend-toggle'),
+  backendUrl: document.getElementById('backend-url'),
   filterInput: document.getElementById('filter-input'),
   settingsPanel: document.getElementById('settings-panel'),
   exportPanel: document.getElementById('export-panel'),
@@ -94,6 +98,15 @@ function setupEventListeners() {
   elements.notificationToggle.addEventListener('change', () => {
     state.notifications = elements.notificationToggle.checked;
     updateToggleStyle(elements.notificationToggle);
+    saveSettings();
+  });
+  elements.backendToggle.addEventListener('change', () => {
+    state.syncWithBackend = elements.backendToggle.checked;
+    updateToggleStyle(elements.backendToggle);
+    saveSettings();
+  });
+  elements.backendUrl.addEventListener('change', () => {
+    state.backendUrl = elements.backendUrl.value;
     saveSettings();
   });
   elements.delayRange.addEventListener('input', () => {
@@ -192,7 +205,9 @@ function toggleScraping() {
         autoScroll: state.autoScroll,
         scrapingDepth: state.scrapingDepth,
         scrapeDelay: state.scrapeDelay,
-        batchSize: state.batchSize
+        batchSize: state.batchSize,
+        syncWithBackend: state.syncWithBackend,
+        backendUrl: state.backendUrl
       }
     });
   } else {
@@ -339,7 +354,9 @@ async function loadSettings() {
       'scrapingDepth',
       'scrapeDelay',
       'batchSize',
-      'notifications'
+      'notifications',
+      'syncWithBackend',
+      'backendUrl'
     ]);
     
     // Apply saved settings with fallbacks to defaults
@@ -349,6 +366,8 @@ async function loadSettings() {
     state.scrapeDelay = saved.scrapeDelay || 500;
     state.batchSize = saved.batchSize || 25;
     state.notifications = saved.notifications !== undefined ? saved.notifications : true;
+    state.syncWithBackend = saved.syncWithBackend !== undefined ? saved.syncWithBackend : false;
+    state.backendUrl = saved.backendUrl || 'http://localhost:5000';
   } catch (error) {
     console.error('Error loading settings:', error);
     // Fall back to defaults
@@ -363,7 +382,9 @@ function saveSettings() {
     scrapingDepth: state.scrapingDepth,
     scrapeDelay: state.scrapeDelay,
     batchSize: state.batchSize,
-    notifications: state.notifications
+    notifications: state.notifications,
+    syncWithBackend: state.syncWithBackend,
+    backendUrl: state.backendUrl
   });
 }
 
@@ -375,6 +396,8 @@ function resetSettings() {
   state.scrapeDelay = 500;
   state.batchSize = 25;
   state.notifications = true;
+  state.syncWithBackend = false;
+  state.backendUrl = 'http://localhost:5000';
   
   // Update UI to reflect defaults
   elements.emailToggle.checked = false;
@@ -384,11 +407,14 @@ function resetSettings() {
   elements.delayValue.textContent = '500ms';
   elements.batchSize.value = '25';
   elements.notificationToggle.checked = true;
+  elements.backendToggle.checked = false;
+  elements.backendUrl.value = 'http://localhost:5000';
   
   // Update toggle styling
   updateToggleStyle(elements.emailToggle);
   updateToggleStyle(elements.scrollToggle);
   updateToggleStyle(elements.notificationToggle);
+  updateToggleStyle(elements.backendToggle);
   
   // Save defaults
   saveSettings();
@@ -406,11 +432,14 @@ function updateUI() {
   elements.delayValue.textContent = `${state.scrapeDelay}ms`;
   elements.batchSize.value = state.batchSize.toString();
   elements.notificationToggle.checked = state.notifications;
+  elements.backendToggle.checked = state.syncWithBackend;
+  elements.backendUrl.value = state.backendUrl;
   
   // Update toggle styling
   updateToggleStyle(elements.emailToggle);
   updateToggleStyle(elements.scrollToggle);
   updateToggleStyle(elements.notificationToggle);
+  updateToggleStyle(elements.backendToggle);
   
   // Update scrape button state
   if (state.isActive) {

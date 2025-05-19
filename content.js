@@ -405,11 +405,67 @@ function deduplicateAndCleanProfiles() {
 
 // Send updates to the popup
 function syncProfiles() {
+  // Send current profiles to popup
   chrome.runtime.sendMessage({
     action: 'updateProfiles',
     profiles: state.profiles,
     totalAvailable: state.totalAvailable
   });
+  
+  // If there's a backend API configured, sync with the server database as well
+  if (state.options.syncWithBackend && state.options.backendUrl) {
+    const currentUrl = window.location.href;
+    const searchTitle = document.title || 'LinkedIn Sales Navigator Search';
+    
+    // Get any search filters
+    let searchCriteria = '';
+    const filtersBar = document.querySelector('.search-filter-bar');
+    if (filtersBar) {
+      searchCriteria = filtersBar.textContent;
+    }
+    
+    // Transform profiles data for API format
+    const profilesForApi = state.profiles.map(profile => ({
+      name: profile.name || '',
+      title: profile.title || null,
+      company: profile.company || null,
+      profileUrl: profile.profileUrl || null,
+      companyUrl: profile.companyUrl || null,
+      email: profile.email || null,
+      notes: null,
+      tags: []
+    }));
+    
+    // Send to backend only if there are profiles to sync
+    if (profilesForApi.length > 0) {
+      fetch(`${state.options.backendUrl}/api/import/profiles`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          profiles: profilesForApi,
+          searchName: searchTitle,
+          searchUrl: currentUrl,
+          searchCriteria: searchCriteria
+        })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Network response was not ok: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Profiles synced with backend:', data);
+        sendStatusUpdate(`Synced ${profilesForApi.length} profiles with database`);
+      })
+      .catch(error => {
+        console.error('Error syncing profiles with backend:', error);
+        sendStatusUpdate(`Failed to sync with database: ${error.message}`);
+      });
+    }
+  }
 }
 
 // Send status updates to the popup
